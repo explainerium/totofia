@@ -1,0 +1,138 @@
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUNDED
+}
+
+enum PaymentMethod {
+  COD
+  SSLCOMMERZ
+  AAMARPAY
+}
+
+enum OrderSource {
+  WEB
+  ADMIN
+}
+
+/// Everything the customer saw is snapshotted, so later product/price changes never alter an order.
+model Order {
+  id               String        @id @default(uuid()) @db.Uuid
+  /// Customer-facing order number (sequence starts at 10001).
+  number           Int           @unique @default(autoincrement())
+  userId           String?       @map("user_id") @db.Uuid
+  locale           Locale        @default(bn)
+  status           OrderStatus   @default(PENDING)
+  paymentStatus    PaymentStatus @default(UNPAID) @map("payment_status")
+  paymentMethod    PaymentMethod @map("payment_method")
+  source           OrderSource   @default(WEB)
+  customerName     String        @map("customer_name")
+  customerPhone    String        @map("customer_phone")
+  customerEmail    String?       @map("customer_email")
+  subtotal         Decimal       @db.Decimal(12, 2)
+  shippingFee      Decimal       @map("shipping_fee") @db.Decimal(12, 2)
+  discount         Decimal       @default(0) @db.Decimal(12, 2)
+  grandTotal       Decimal       @map("grand_total") @db.Decimal(12, 2)
+  couponCode       String?       @map("coupon_code")
+  shippingZoneCode String        @map("shipping_zone_code")
+  note             String?
+  courierName      String?       @map("courier_name")
+  trackingCode     String?       @map("tracking_code")
+  deliveredAt      DateTime?     @map("delivered_at")
+  /// Lets a guest open their own order (success page / email link) without an account.
+  guestAccessToken String        @unique @map("guest_access_token")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  items            OrderItem[]
+  address          OrderAddress?
+  statusHistory    OrderStatusHistory[]
+  notes            OrderNote[]
+  payments         Payment[]
+  paidAt           DateTime?            @map("paid_at")
+  reviews          Review[]
+  couponRedemption CouponRedemption?
+  user             User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([customerPhone])
+  @@index([status, createdAt])
+  @@index([userId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id             String   @id @default(uuid()) @db.Uuid
+  orderId        String   @map("order_id") @db.Uuid
+  productId      String?  @map("product_id") @db.Uuid
+  variantId      String?  @map("variant_id") @db.Uuid
+  sku            String
+  nameBn         String   @map("name_bn")
+  nameEn         String   @map("name_en")
+  variantLabelBn String   @default("") @map("variant_label_bn")
+  variantLabelEn String   @default("") @map("variant_label_en")
+  imageUrl       String?  @map("image_url")
+  unitPrice      Decimal  @map("unit_price") @db.Decimal(12, 2)
+  compareAt      Decimal? @map("compare_at") @db.Decimal(12, 2)
+  quantity       Int
+  lineTotal      Decimal  @map("line_total") @db.Decimal(12, 2)
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model OrderAddress {
+  id          String @id @default(uuid()) @db.Uuid
+  orderId     String @unique @map("order_id") @db.Uuid
+  name        String
+  phone       String
+  /// Codes from src/lib/geo/bd.ts.
+  division    String
+  district    String
+  area        String
+  addressLine String @map("address_line")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_addresses")
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(uuid()) @db.Uuid
+  orderId   String      @map("order_id") @db.Uuid
+  status    OrderStatus
+  note      String?
+  /// Staff member who made the change (null = customer / system).
+  actorName String?     @map("actor_name")
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("order_status_history")
+}
+
+/// Internal staff note on an order (never shown to the customer).
+model OrderNote {
+  id         String   @id @default(uuid()) @db.Uuid
+  orderId    String   @map("order_id") @db.Uuid
+  body       String
+  authorName String   @map("author_name")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("order_notes")
+}

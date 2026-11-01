@@ -1,0 +1,268 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design tokens — source: ../totofia-design/DESIGN.md (frontmatter, kept outside the repo), same as the Tailwind config in the design HTML.
+ * Material-style names are kept so the Stitch markup ports 1:1 (bg-surface-container-low, text-on-surface ...).
+ * shadcn semantic tokens (--background, --primary ...) are mapped onto them further down.
+ */
+:root {
+  --surface: #fff8f5;
+  --surface-dim: #e2d8d2;
+  --surface-bright: #fff8f5;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #fcf2eb;
+  --surface-container: #f6ece6;
+  --surface-container-high: #f0e6e0;
+  --surface-container-highest: #eae1da;
+  --surface-variant: #eae1da;
+  --on-surface: #1f1b17;
+  --on-surface-variant: #3e4947;
+  --inverse-surface: #342f2b;
+  --inverse-on-surface: #f9efe8;
+  --outline: #6e7977;
+  --outline-variant: #bdc9c6;
+  --surface-tint: #006a63;
+
+  --brand-primary: #005c55;
+  --on-primary: #ffffff;
+  --primary-container: #0f766e;
+  --on-primary-container: #a3faef;
+  --inverse-primary: #80d5cb;
+  --primary-fixed: #9cf2e8;
+  --primary-fixed-dim: #80d5cb;
+  --on-primary-fixed: #00201d;
+  --on-primary-fixed-variant: #00504a;
+
+  --brand-secondary: #006b5f;
+  /* DESIGN.md › Colors: the vibrant turquoise accent (logo tagline, promo callouts). */
+  --brand-accent: #14b8a6;
+  --on-secondary: #ffffff;
+  --secondary-container: #6df5e1;
+  --on-secondary-container: #006f64;
+  --secondary-fixed: #71f8e4;
+  --secondary-fixed-dim: #4fdbc8;
+  --on-secondary-fixed: #00201c;
+  --on-secondary-fixed-variant: #005048;
+
+  --tertiary: #5b4f3d;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #746754;
+  --on-tertiary-container: #f9e7cf;
+  --tertiary-fixed: #f2e0c8;
+  --tertiary-fixed-dim: #d5c4ad;
+  --on-tertiary-fixed: #231a0c;
+  --on-tertiary-fixed-variant: #504534;
+
+  --error: #ba1a1a;
+  --on-error: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
+
+  /* shadcn semantic tokens */
+  --background: var(--surface);
+  --foreground: var(--on-surface);
+  --card: var(--surface-container-lowest);
+  --card-foreground: var(--on-surface);
+  --popover: var(--surface-container-lowest);
+  --popover-foreground: var(--on-surface);
+  --primary: var(--brand-primary);
+  --primary-foreground: var(--on-primary);
+  --secondary: var(--brand-secondary);
+  --secondary-foreground: var(--on-secondary);
+  --muted: var(--surface-container);
+  --muted-foreground: var(--on-surface-variant);
+  --accent: var(--surface-container-low);
+  --accent-foreground: var(--on-surface);
+  --destructive: var(--error);
+  --border: var(--outline-variant);
+  --input: var(--outline-variant);
+  --ring: var(--brand-primary);
+  --chart-1: #005c55;
+  --chart-2: #4fdbc8;
+  --chart-3: #d5c4ad;
+  --chart-4: #0f766e;
+  --chart-5: #746754;
+  --sidebar: var(--surface-container-lowest);
+  --sidebar-foreground: var(--on-surface);
+  --sidebar-primary: var(--brand-primary);
+  --sidebar-primary-foreground: var(--on-primary);
+  --sidebar-accent: var(--surface-container-low);
+  --sidebar-accent-foreground: var(--on-surface);
+  --sidebar-border: var(--outline-variant);
+  --sidebar-ring: var(--brand-primary);
+}
+
+@theme inline {
+  /* Material tokens */
+  --color-surface: var(--surface);
+  --color-surface-dim: var(--surface-dim);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-surface-variant: var(--surface-variant);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-inverse-surface: var(--inverse-surface);
+  --color-inverse-on-surface: var(--inverse-on-surface);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  --color-surface-tint: var(--surface-tint);
+  --color-on-primary: var(--on-primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+  --color-inverse-primary: var(--inverse-primary);
+  --color-primary-fixed: var(--primary-fixed);
+  --color-primary-fixed-dim: var(--primary-fixed-dim);
+  --color-on-primary-fixed: var(--on-primary-fixed);
+  --color-on-primary-fixed-variant: var(--on-primary-fixed-variant);
+  --color-brand-accent: var(--brand-accent);
+  --color-on-secondary: var(--on-secondary);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary-container: var(--on-secondary-container);
+  --color-secondary-fixed: var(--secondary-fixed);
+  --color-secondary-fixed-dim: var(--secondary-fixed-dim);
+  --color-on-secondary-fixed: var(--on-secondary-fixed);
+  --color-on-secondary-fixed-variant: var(--on-secondary-fixed-variant);
+  --color-tertiary: var(--tertiary);
+  --color-on-tertiary: var(--on-tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-on-tertiary-container: var(--on-tertiary-container);
+  --color-tertiary-fixed: var(--tertiary-fixed);
+  --color-tertiary-fixed-dim: var(--tertiary-fixed-dim);
+  --color-on-tertiary-fixed: var(--on-tertiary-fixed);
+  --color-on-tertiary-fixed-variant: var(--on-tertiary-fixed-variant);
+  --color-error: var(--error);
+  --color-on-error: var(--on-error);
+  --color-error-container: var(--error-container);
+  --color-on-error-container: var(--on-error-container);
+
+  /* shadcn semantic tokens */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Fonts (variables come from next/font in src/lib/fonts.ts).
+     Plus Jakarta Sans has no Bengali glyphs, so Bangla falls through to Noto Sans Bengali. */
+  --font-heading:
+    var(--font-jakarta), var(--font-noto-bengali), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-noto), var(--font-noto-bengali), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-body);
+}
+
+@theme {
+  /* Type scale — line heights are expanded for Bangla diacritics (DESIGN.md › Typography) */
+  --text-display-lg: 40px;
+  --text-display-lg--line-height: 52px;
+  --text-display-lg--font-weight: 700;
+  --text-display-lg-mobile: 30px;
+  --text-display-lg-mobile--line-height: 40px;
+  --text-display-lg-mobile--font-weight: 700;
+  --text-headline-lg: 32px;
+  --text-headline-lg--line-height: 44px;
+  --text-headline-lg--font-weight: 600;
+  --text-headline-lg-mobile: 24px;
+  --text-headline-lg-mobile--line-height: 34px;
+  --text-headline-lg-mobile--font-weight: 600;
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 34px;
+  --text-headline-md--font-weight: 600;
+  --text-headline-sm: 20px;
+  --text-headline-sm--line-height: 30px;
+  --text-headline-sm--font-weight: 600;
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 32px;
+  --text-body-md: 15px;
+  --text-body-md--line-height: 26px;
+  --text-body-sm: 13px;
+  --text-body-sm--line-height: 22px;
+  --text-label-lg: 15px;
+  --text-label-lg--line-height: 22px;
+  --text-label-lg--font-weight: 600;
+  --text-label-lg--letter-spacing: 0.01em;
+  --text-label-md: 13px;
+  --text-label-md--line-height: 18px;
+  --text-label-md--font-weight: 600;
+  --text-label-md--letter-spacing: 0.02em;
+  --text-label-sm: 11px;
+  --text-label-sm--line-height: 16px;
+  --text-label-sm--font-weight: 700;
+  --text-label-sm--letter-spacing: 0.03em;
+
+  /* Spacing (8px grid) */
+  --spacing-gutter: 1.5rem;
+  --spacing-gutter-sm: 1rem;
+  --spacing-margin: 2rem;
+  --spacing-margin-sm: 1rem;
+  --spacing-space-xs: 0.25rem;
+  --spacing-space-sm: 0.5rem;
+  --spacing-space-md: 1rem;
+  --spacing-space-lg: 1.5rem;
+  --spacing-space-xl: 2.5rem;
+
+  /* Layout */
+  --container-shop: 1280px;
+
+  /* Elevation (DESIGN.md › Elevation & Depth) */
+  --shadow-card-hover: 0px 4px 16px -2px rgba(28, 25, 23, 0.05);
+  --shadow-nav: 0px 2px 10px rgba(15, 118, 110, 0.04);
+  --shadow-overlay: 0px 12px 32px -4px rgba(28, 25, 23, 0.12);
+
+  /* Radius: Tailwind v4 defaults already match the design (DEFAULT .25rem, lg .5rem, xl .75rem, 2xl 1rem, 3xl 1.5rem) */
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-body antialiased;
+  }
+  body {
+    @apply bg-background text-body-md text-foreground;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}

@@ -1,0 +1,5 @@
+/// Content languages. Every translatable record has one row per locale.
+enum Locale {
+  bn
+  en
+}

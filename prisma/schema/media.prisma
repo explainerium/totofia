@@ -1,0 +1,21 @@
+/// An uploaded file. Images are stored as WebP with resized derivatives
+/// (`derivatives` = { thumb, grid, detail, zoom } → storage keys).
+model Asset {
+  id           String   @id @default(uuid()) @db.Uuid
+  storageKey   String   @unique @map("storage_key")
+  originalName String   @map("original_name")
+  mimeType     String   @map("mime_type")
+  size         Int
+  width        Int?
+  height       Int?
+  derivatives  Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  categories       Category[]
+  productImages    ProductImage[]
+  featuredProducts Product[]        @relation("ProductFeaturedImage")
+  variants         ProductVariant[]
+  banners          Banner[]
+
+  @@map("assets")
+}

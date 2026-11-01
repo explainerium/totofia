@@ -1,0 +1,32 @@
+enum PaymentAttemptStatus {
+  INITIATED
+  PAID
+  FAILED
+  CANCELLED
+}
+
+/// One online payment attempt (SSLCommerz session). An order can have several (retries).
+model Payment {
+  id         String               @id @default(uuid()) @db.Uuid
+  orderId    String               @map("order_id") @db.Uuid
+  provider   PaymentMethod
+  /// Our transaction id sent to the gateway (unique per attempt).
+  tranId     String               @unique @map("tran_id")
+  amount     Decimal              @db.Decimal(12, 2)
+  status     PaymentAttemptStatus @default(INITIATED)
+  /// Gateway validation id / bank transaction id once paid.
+  valId      String?              @map("val_id")
+  bankTranId String?              @map("bank_tran_id")
+  cardType   String?              @map("card_type")
+  failReason String?              @map("fail_reason")
+  /// Last validated gateway response (for support / disputes).
+  raw        Json?
+  paidAt     DateTime?            @map("paid_at")
+  createdAt  DateTime             @default(now()) @map("created_at")
+  updatedAt  DateTime             @updatedAt @map("updated_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("payments")
+}

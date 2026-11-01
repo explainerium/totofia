@@ -1,0 +1,10 @@
+/// Key/value store for shop configuration (store info, COD rules, pixel ids ...).
+/// Secrets inside `value` are encrypted by the service layer.
+model Setting {
+  key       String   @id
+  value     Json
+  isPublic  Boolean  @default(false) @map("is_public")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}

@@ -1,0 +1,125 @@
+// ─── CMS pages (about, policies, FAQ ...) ────────────────────────────────────
+
+model Page {
+  id          String   @id @default(uuid()) @db.Uuid
+  /// URL path segment, e.g. "about", "return-policy". Same in both languages.
+  slug        String   @unique
+  isPublished Boolean  @default(true) @map("is_published")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  translations PageTranslation[]
+
+  @@map("pages")
+}
+
+model PageTranslation {
+  id              String  @id @default(uuid()) @db.Uuid
+  pageId          String  @map("page_id") @db.Uuid
+  locale          Locale
+  title           String
+  /// Sanitized HTML.
+  body            String
+  metaTitle       String? @map("meta_title")
+  metaDescription String? @map("meta_description")
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([pageId, locale])
+  @@map("page_translations")
+}
+
+// ─── Home banners ────────────────────────────────────────────────────────────
+
+enum BannerPlacement {
+  HOME_HERO
+  HOME_PROMO
+}
+
+model Banner {
+  id         String          @id @default(uuid()) @db.Uuid
+  placement  BannerPlacement
+  imageId    String?         @map("image_id") @db.Uuid
+  titleBn    String          @map("title_bn")
+  titleEn    String          @map("title_en")
+  subtitleBn String?         @map("subtitle_bn")
+  subtitleEn String?         @map("subtitle_en")
+  ctaLabelBn String?         @map("cta_label_bn")
+  ctaLabelEn String?         @map("cta_label_en")
+  /// Storefront path without locale, e.g. "/category/sets".
+  link       String?
+  sortOrder  Int             @default(0) @map("sort_order")
+  startsAt   DateTime?       @map("starts_at")
+  endsAt     DateTime?       @map("ends_at")
+  isActive   Boolean         @default(true) @map("is_active")
+  createdAt  DateTime        @default(now()) @map("created_at")
+  updatedAt  DateTime        @updatedAt @map("updated_at")
+
+  image Asset? @relation(fields: [imageId], references: [id], onDelete: SetNull)
+
+  @@index([placement, isActive])
+  @@map("banners")
+}
+
+// ─── Contact & newsletter ────────────────────────────────────────────────────
+
+enum ContactStatus {
+  NEW
+  READ
+  ARCHIVED
+}
+
+model ContactMessage {
+  id        String        @id @default(uuid()) @db.Uuid
+  name      String
+  email     String?
+  phone     String?
+  subject   String?
+  message   String
+  locale    Locale        @default(bn)
+  status    ContactStatus @default(NEW)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  @@index([status, createdAt])
+  @@map("contact_messages")
+}
+
+model NewsletterSubscriber {
+  id             String    @id @default(uuid()) @db.Uuid
+  email          String    @unique
+  locale         Locale    @default(bn)
+  unsubscribedAt DateTime? @map("unsubscribed_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  @@map("newsletter_subscribers")
+}
+
+// ─── Reviews ─────────────────────────────────────────────────────────────────
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// Verified purchase only: one review per customer and product, from a delivered order.
+model Review {
+  id        String       @id @default(uuid()) @db.Uuid
+  productId String       @map("product_id") @db.Uuid
+  userId    String       @map("user_id") @db.Uuid
+  orderId   String       @map("order_id") @db.Uuid
+  rating    Int
+  body      String
+  locale    Locale       @default(bn)
+  status    ReviewStatus @default(PENDING)
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([productId, status])
+  @@map("reviews")
+}

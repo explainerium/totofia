@@ -1,0 +1,20 @@
+export const tagTypes = [
+  "Category",
+  "Attribute",
+  "Product",
+  "Coupon",
+  "ShippingZone",
+  "Order",
+  "Cart",
+  "Wishlist",
+  "Account",
+  "Customer",
+  "Dashboard",
+  "Page",
+  "Banner",
+  "Message",
+  "Subscriber",
+  "Review",
+  "Setting",
+] as const;
+export type TagType = (typeof tagTypes)[number];
