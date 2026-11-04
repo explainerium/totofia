@@ -3,11 +3,14 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
-// Uploaded media is served from Cloudflare R2 in production (NEXT_PUBLIC_MEDIA_URL), from
-// /media/... (same origin) in development.
-const mediaUrl = process.env.NEXT_PUBLIC_MEDIA_URL
-  ? new URL(process.env.NEXT_PUBLIC_MEDIA_URL)
-  : null;
+// Uploaded media comes from Cloudinary or R2 (NEXT_PUBLIC_MEDIA_URL) on Vercel, from /media/...
+// (same origin) in development and on a VPS.
+const mediaBase =
+  process.env.NEXT_PUBLIC_MEDIA_URL ||
+  (process.env.STORAGE_DRIVER === "cloudinary" && process.env.CLOUDINARY_CLOUD_NAME
+    ? `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload`
+    : "");
+const mediaUrl = mediaBase ? new URL(mediaBase) : null;
 
 const securityHeaders = [
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },

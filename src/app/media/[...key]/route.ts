@@ -1,6 +1,7 @@
 import { storage } from "@/server/integrations/storage";
 
-// Serves files written by the local storage driver (development). In production media comes from R2.
+// Serves files written by the local storage driver (development, VPS). On Vercel media comes from
+// Cloudinary or R2.
 export async function GET(_req: Request, { params }: RouteContext<"/media/[...key]">) {
   const { key } = await params;
   const body = await storage.get(key.join("/")).catch(() => null);

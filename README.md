@@ -96,19 +96,23 @@ Then enable both gateways in Admin → Settings → Payments with the mock crede
 ## Deploying (Vercel)
 
 1. **Database** — managed PostgreSQL in Singapore (Neon or Supabase). `DATABASE_URL` = pooled
-   connection, `DIRECT_URL` = direct connection (migrations).
-2. **Media** — Cloudflare R2 bucket with a public custom domain (e.g. `media.totofia.com`):
-   `STORAGE_DRIVER=r2`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`,
-   `NEXT_PUBLIC_MEDIA_URL`.
+   connection. `DIRECT_URL` (migrations) is optional on Neon: the `-pooler` URL is converted to the
+   direct one automatically.
+2. **Media** — Vercel has no persistent disk. Cloudinary: `STORAGE_DRIVER=cloudinary`,
+   `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (images are resized with
+   sharp before upload; Cloudinary only stores and serves them). Or Cloudflare R2 with a public
+   custom domain: `STORAGE_DRIVER=r2`, `R2_*`, `NEXT_PUBLIC_MEDIA_URL`. On a VPS, `local`
+   (`./uploads`) works — back the folder up.
 3. **Vercel project** — set every variable from `.env.example`. Production refuses to start
    without `BETTER_AUTH_SECRET` (32+ chars), an `https://` `NEXT_PUBLIC_SITE_URL`, `CRON_SECRET`,
    `CREDENTIALS_KEY` (32+ chars — keep it safe; changing it means re-entering gateway credentials)
-   and R2 storage. `BETTER_AUTH_URL` = the site URL.
+   and, on Vercel, Cloudinary or R2 storage. `BETTER_AUTH_URL` = the site URL.
 4. **Rate limits** — add an Upstash Redis database (`UPSTASH_REDIS_REST_URL` / `_TOKEN`); without it
    limits are per server instance.
 5. **Build command** — `npm run db:deploy && npm run build` (applies migrations first).
-6. **Cron** — `vercel.json` runs `/api/cron/expire-unpaid` every 15 minutes (Vercel sends
-   `Authorization: Bearer $CRON_SECRET`).
+6. **Cron** — `vercel.json` runs `/api/cron/expire-unpaid` once a day (Hobby plan limit; on Pro
+   use `*/15 * * * *`). Vercel sends `Authorization: Bearer $CRON_SECRET`. Functions run in
+   `sin1` (Singapore, next to the database). On a VPS, call it from crontab every 15 minutes.
 7. **After the first deploy** — `npm run seed:admin` against the production database, fill in
    Admin → Settings (phone, email, address, social links, GA4 / Meta Pixel ids), Settings →
    Payments (gateways: test in Sandbox first, then switch to Live), replace the sample

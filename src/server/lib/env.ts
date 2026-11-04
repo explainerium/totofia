@@ -14,12 +14,15 @@ const schema = z.object({
   BETTER_AUTH_SECRET: optional,
   CRON_SECRET: optional,
   CREDENTIALS_KEY: optional,
-  STORAGE_DRIVER: z.enum(["local", "r2"]).default("local"),
+  STORAGE_DRIVER: z.enum(["local", "r2", "cloudinary"]).default("local"),
   R2_ACCOUNT_ID: optional,
   R2_ACCESS_KEY_ID: optional,
   R2_SECRET_ACCESS_KEY: optional,
   R2_BUCKET: optional,
   NEXT_PUBLIC_MEDIA_URL: optional,
+  CLOUDINARY_CLOUD_NAME: optional,
+  CLOUDINARY_API_KEY: optional,
+  CLOUDINARY_API_SECRET: optional,
 });
 
 const parsed = schema.safeParse(process.env);
@@ -44,8 +47,15 @@ if (env.NODE_ENV === "production" && process.env.NEXT_PHASE !== "phase-productio
   if (!env.CREDENTIALS_KEY || env.CREDENTIALS_KEY.length < 32) {
     problems.push("CREDENTIALS_KEY (32+ characters, encrypts payment gateway credentials)");
   }
-  if (env.STORAGE_DRIVER !== "r2")
-    problems.push("STORAGE_DRIVER=r2 (local disk is not persistent)");
+  // Vercel functions have no persistent disk; a VPS keeps ./uploads, so local is fine there.
+  if (env.STORAGE_DRIVER === "local" && process.env.VERCEL)
+    problems.push("STORAGE_DRIVER=cloudinary or r2 (Vercel has no persistent disk)");
+  if (
+    env.STORAGE_DRIVER === "cloudinary" &&
+    !(env.CLOUDINARY_CLOUD_NAME && env.CLOUDINARY_API_KEY && env.CLOUDINARY_API_SECRET)
+  ) {
+    problems.push("CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_KEY / CLOUDINARY_API_SECRET");
+  }
   if (
     env.STORAGE_DRIVER === "r2" &&
     !(
